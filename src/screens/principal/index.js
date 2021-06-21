@@ -15,74 +15,76 @@ import { useMount } from "../../core/hooks";
 Icon.loadFont();
 
 export default () => {
-  const [mes, setMes] = useState(1);
+  const [dataFiltro, setDataFiltro] = useState(new Date());
+  const [mes, setMes] = useState(dataFiltro.getMonth());
+  const [ano, setAno] = useState(dataFiltro.getFullYear());
+
   const [despesas, setDespesas] = useState([]);
   const [vlTotalDespesas, setVlTotalDespesas] = useState(0);
-
   let meses = {
-    1: "Janeiro",
-    2: "Fevereiro",
-    3: "Março",
-    4: "Abril",
-    5: "Maio",
-    6: "Junho",
-    7: "Julho",
-    8: "Agosto",
-    9: "Setembro",
-    10: "Outubro",
-    11: "Novembro",
-    12: "Dezembro",
+    0: "Janeiro",
+    1: "Fevereiro",
+    2: "Março",
+    3: "Abril",
+    4: "Maio",
+    5: "Junho",
+    6: "Julho",
+    7: "Agosto",
+    8: "Setembro",
+    9: "Outubro",
+    10: "Novembro",
+    11: "Dezembro",
   };
 
-  const avancar = () => {
-    if (mes == 1) {
-      setMes(12);
-      return;
-    }
-    setMes(mes - 1);
-  };
-
-  const retroceder = () => {
-    if (mes == 12) {
-      setMes(1);
-      return;
-    }
-    setMes(mes + 1);
+  const nextAndBack = (value) => {
+    var month = dataFiltro.getMonth() + value;
+    var date = dataFiltro;
+    date.setMonth(month);
+    setMes(date.getMonth());
+    setAno(date.getFullYear());
+    setDataFiltro(date);
   };
 
   const calcularTotal = () => {
     setVlTotalDespesas(0);
 
     var total = despesas.reduce(
-      (valorAcomulado, despesa) => valorAcomulado + despesa.valor,
+      (valorAcomulado, despesa) => valorAcomulado + Number(despesa.valor),
       0
     );
     setVlTotalDespesas(total);
+  };
+
+  const definirMesInicial = () => {
+    setMes(dataFiltro.getMonth());
   };
 
   useMount(async () => {
     const res = await DespesaService.findDespesas();
     setDespesas(res.data);
     calcularTotal();
+    definirMesInicial();
   });
 
   return (
     <Container>
       <Scroller>
         <HeaderArea>
-          <SearchButton onPress={() => avancar()}>
+          <SearchButton onPress={() => nextAndBack(-1)}>
             <Icon name="ios-arrow-back" size={30} color="#FFF" />
           </SearchButton>
 
-          <HeaderTitle>{meses[mes]}</HeaderTitle>
+          <HeaderTitle>
+            {meses[mes]}/{ano}
+          </HeaderTitle>
 
-          <SearchButton onPress={() => retroceder()}>
+          <SearchButton onPress={() => nextAndBack(+1)}>
             <Icon name="ios-arrow-forward" size={30} color="#FFF" />
           </SearchButton>
         </HeaderArea>
 
-        {despesas.map((despesa) => (
-          <LocationArea>
+        {despesas.map((despesa, index) => (
+          <LocationArea key={index}>
             <LocationValues>{despesa.descricao}</LocationValues>
             <LocationValues>{despesa.valor}</LocationValues>
           </LocationArea>

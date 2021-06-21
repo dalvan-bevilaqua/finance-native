@@ -21,7 +21,7 @@ export const HeaderArea = styled.View`
 
 export const HeaderTitle = styled.Text`
   width: 200px;
-  font-size: 30px;
+  font-size: 25px;
   font-weight: bold;
   color: #fff;
   text-align: center;
