@@ -21,6 +21,7 @@ export default () => {
 
   const [despesas, setDespesas] = useState([]);
   const [vlTotalDespesas, setVlTotalDespesas] = useState(0);
+
   let meses = {
     0: "Janeiro",
     1: "Fevereiro",
@@ -43,15 +44,15 @@ export default () => {
     setMes(date.getMonth());
     setAno(date.getFullYear());
     setDataFiltro(date);
+    getDespesa();
   };
 
-  const calcularTotal = () => {
-    setVlTotalDespesas(0);
-
-    var total = despesas.reduce(
+  const calcularTotal = async (data) => {
+    total = await data.reduce(
       (valorAcomulado, despesa) => valorAcomulado + Number(despesa.valor),
       0
     );
+
     setVlTotalDespesas(total);
   };
 
@@ -60,11 +61,15 @@ export default () => {
   };
 
   useMount(async () => {
-    const res = await DespesaService.findDespesas();
-    setDespesas(res.data);
-    calcularTotal();
+    getDespesa();
     definirMesInicial();
   });
+
+  const getDespesa = async () => {
+    const res = await DespesaService.findDespesas({ dtReferencia: dataFiltro });
+    await setDespesas(res.data);
+    calcularTotal(res.data);
+  };
 
   return (
     <Container>
